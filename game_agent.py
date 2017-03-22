@@ -6,7 +6,6 @@ augment the test suite with your own test cases to further test your code.
 You must test your agent's strength against a set of agents with known
 relative strength using tournament.py and include the results in your report.
 """
-import random
 
 
 class Timeout(Exception):
@@ -36,9 +35,171 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
+    # if it is not an end game situation the heuristic function equals number of AI player legal moves
+    # Otherwise use the game utility (if AI wins +Inf if AI loses -Inf)
+    if game.utility(player) == 0:
+        player_moves = game.get_legal_moves(player)
+        opponent_moves = game.get_legal_moves(game.get_opponent(player))
+        # In the beginning try to return a useful heuristic as fast as possible
+        if game.move_count > 0.8 * game.width*game.height:
+            return len(player_moves)
+        # later try to eliminate the opponent mobility aggressively
+        else:
+            # Specifically if the opponent has only one move that leads to opponent loss, force it
+            # (as long as the player has further moves after forcing it)
+            if len(opponent_moves) == 1:
+                next_game = game.forecast_move(opponent_moves[0])
+                if len(next_game.get_legal_moves(game.get_opponent(player))) == 0 and \
+                   len(next_game.get_legal_moves(player)) > 0:
+                    return float("inf")
 
-    # TODO: finish this function!
-    raise NotImplementedError
+            return len(player_moves)/(1 + len(opponent_moves) * len(game.get_blank_spaces()))
+    else:
+        return game.utility(player)
+
+
+def custom_score04(game, player):
+    """Calculate the heuristic value of a game state from the point of view
+    of the given player.
+
+    Note: this function should be called from within a Player instance as
+    `self.score()` -- you should not need to call this function directly.
+
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+
+    player : object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+    Returns
+    -------
+    float
+        The heuristic value of the current game state to the specified player.
+    """
+    # if it is not an end game situation the heuristic function equals number of AI player legal moves
+    # Otherwise use the game utility (if AI wins +Inf if AI loses -Inf)
+    if game.utility(player) == 0:
+        player_moves = game.get_legal_moves(player)
+        opponent_moves = game.get_legal_moves(game.get_opponent(player))
+        return len(player_moves) - len(opponent_moves) * (game.width*game.height - len(game.get_blank_spaces()))
+    else:
+        return game.utility(player)
+
+
+def custom_score03(game, player):
+    """Calculate the heuristic value of a game state from the point of view
+    of the given player.
+
+    Note: this function should be called from within a Player instance as
+    `self.score()` -- you should not need to call this function directly.
+
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+
+    player : object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+    Returns
+    -------
+    float
+        The heuristic value of the current game state to the specified player.
+    """
+    # if it is not an end game situation the heuristic function equals number of AI player legal moves
+    # Otherwise use the game utility (if AI wins +Inf if AI loses -Inf)
+    if game.utility(player) == 0:
+        player_moves = game.get_legal_moves(player)
+        opponent_moves = game.get_legal_moves(game.get_opponent(player))
+        return len(player_moves)/(1 + len(opponent_moves))
+    else:
+        return game.utility(player)
+
+
+def custom_score02(game, player):
+    """Calculate the heuristic value of a game state from the point of view
+    of the given player.
+
+    Note: this function should be called from within a Player instance as
+    `self.score()` -- you should not need to call this function directly.
+
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+
+    player : object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+    Returns
+    -------
+    float
+        The heuristic value of the current game state to the specified player.
+    """
+    # if it is not an end game situation the heuristic function equals number of AI player legal moves
+    # Otherwise use the game utility (if AI wins +Inf if AI loses -Inf)
+    if game.utility(player) == 0:
+        player_moves = game.get_legal_moves(player)
+
+        if len(game.get_blank_spaces()) > 40:
+            # Maximize open moves while keeping an eye for aggression in early-game
+            opponent_moves = game.get_legal_moves(game.get_opponent(player))
+            return float(len(player_moves))
+        elif len(game.get_blank_spaces()) > 10:
+            # Get more aggressive in mid-game
+            opponent_moves = game.get_legal_moves(game.get_opponent(player))
+            return float(len(player_moves) - 4*len(opponent_moves))
+        else:
+            # Get survivalist in the late-game
+            opponent_moves = game.get_legal_moves(game.get_opponent(player))
+            return float(len(player_moves))
+
+    else:
+        return game.utility(player)
+
+
+def custom_score01(game, player):
+    """Calculate the heuristic value of a game state from the point of view
+    of the given player.
+
+    Note: this function should be called from within a Player instance as
+    `self.score()` -- you should not need to call this function directly.
+
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+
+    player : object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+    Returns
+    -------
+    float
+        The heuristic value of the current game state to the specified player.
+    """
+    # if it is not an end game situation the heuristic function equals number of AI player legal moves
+    # Otherwise use the game utility (if AI wins +Inf if AI loses -Inf)
+    if game.utility(player) == 0:
+        if len(game.get_blank_spaces()) < 10:
+            return float(len(game.get_legal_moves(player)) *
+                         (1+1/(1+len(game.get_legal_moves(game.get_opponent(player))))))
+        else:
+            # avoid moving to a dead zone (where AI player does not have any further move
+            return float(len(game.get_legal_moves(player)) *
+                         (1+8/(1+len(game.get_legal_moves(game.get_opponent(player))))))
+    else:
+        return game.utility(player)
 
 
 class CustomPlayer:
@@ -123,20 +284,45 @@ class CustomPlayer:
         # Perform any required initializations, including selecting an initial
         # move from the game board (i.e., an opening book), or returning
         # immediately if there are no legal moves
+        if len(legal_moves) <= 0:
+            return -1, -1
+
+        # Choose the center as the best initial move till finding a better move (if it is available)
+        if (3, 3) not in legal_moves and game.move_count <= 1:
+            move = (3, 3)
+        else:
+            move = legal_moves[0]  # To initiate move variable
 
         try:
             # The search method call (alpha beta or minimax) should happen in
             # here in order to avoid timeout. The try/except block will
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
-            pass
+
+            if self.method == 'minimax':
+                if self.iterative:
+                    depth = 0
+                    while self.time_left() > self.TIMER_THRESHOLD:
+                        _, move = self.minimax(game, depth)
+                        depth += 1
+                else:
+                    _, move = self.minimax(game, self.search_depth)
+
+            if self.method == 'alphabeta':
+                if self.iterative:
+                    depth = 0
+                    while self.time_left() > self.TIMER_THRESHOLD:
+                        _, move = self.alphabeta(game, depth)
+                        depth += 1
+                else:
+                    move = self.alphabeta(game, self.search_depth)
 
         except Timeout:
             # Handle any actions required at timeout, if necessary
-            pass
+            return move
 
         # Return the best move from the last completed search iteration
-        raise NotImplementedError
+        return move
 
     def minimax(self, game, depth, maximizing_player=True):
         """Implement the minimax search algorithm as described in the lectures.
@@ -172,8 +358,33 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # Reaching the terminal nodes (the node is not necessarily an end game node but a node considered a sudo-end
+        # based on the depth dictated by the iterative deepening code
+        if depth == 0:
+            return self.score(game, self), None
+
+        # maximizing layer
+        if maximizing_player:
+            score = float("-inf")
+            move = (-1, -1)
+            for next_move in game.get_legal_moves():
+                new_game = game.forecast_move(next_move)
+                move_score, _ = self.minimax(new_game, depth-1, False)
+                if move_score > score:
+                    score = move_score
+                    move = next_move
+        # minimizing layer
+        else:
+            score = float("inf")
+            move = (-1, -1)
+            for next_move in game.get_legal_moves():
+                new_game = game.forecast_move(next_move)
+                move_score, _ = self.minimax(new_game, depth - 1, True)
+                if move_score < score:
+                    score = move_score
+                    move = next_move
+
+        return score, move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
         """Implement minimax search with alpha-beta pruning as described in the
@@ -216,5 +427,41 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # Reaching the terminal nodes (the node is not necessarily an end game node but a node considered a sudo-end
+        # based on the depth dictated by the iterative deepening code
+        if depth == 0:
+            return self.score(game, self), None
+
+        # maximizing layer
+        if maximizing_player:
+            score = float("-inf")
+            move = (-1, -1)
+            for next_move in game.get_legal_moves():
+                new_game = game.forecast_move(next_move)
+                move_score, _ = self.alphabeta(new_game, depth-1, alpha, beta, False)
+                if move_score > score:
+                    score = move_score
+                    move = next_move
+
+                # maximize alpha
+                alpha = max(alpha, score)
+                if alpha >= beta:
+                    break
+
+        # minimizing layer
+        else:
+            score = float("inf")
+            move = (-1, -1)
+            for next_move in game.get_legal_moves():
+                new_game = game.forecast_move(next_move)
+                move_score, _ = self.alphabeta(new_game, depth-1, alpha, beta, True)
+                if move_score < score:
+                    score = move_score
+                    move = next_move
+
+                # minimize beta
+                beta = min(beta, score)
+                if alpha >= beta:
+                    break
+
+        return score, move
